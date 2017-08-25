@@ -9,7 +9,6 @@ namespace Concordance.Core.Interfaces
     public interface IConfigProvider
     {
         string WordDelimiters { get; }
-        string SentenceDelimiters { get; }
         bool SortAsc { get; }
     }
 }

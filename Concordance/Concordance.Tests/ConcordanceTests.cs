@@ -20,7 +20,6 @@ namespace Concordance.Tests
         public void TestInit()
         {
             ConfigProviderMock = new Mock<IConfigProvider>();
-            ConfigProviderMock.Setup(x => x.SentenceDelimiters).Returns(".");
             ConfigProviderMock.Setup(x => x.WordDelimiters).Returns("\r\n, ");
             ConfigProviderMock.Setup(x => x.SortAsc).Returns(true);
 
@@ -95,8 +94,7 @@ namespace Concordance.Tests
         public void TestMultipleOccurencesInOneSentence()
         {
             Results = Subject.Run("A word word appears twice in this sentence");
-            var arrayOfWords = Results.ToArray();
-            CollectionAssert.AreEqual(new long[]{0, 0}, arrayOfWords.Last().SentenceNumbers.ToArray());
+            CollectionAssert.AreEqual(new long[]{0, 0}, Results.Last().SentenceNumbers.ToArray());
         }
 
         [TestMethod]
@@ -105,8 +103,17 @@ namespace Concordance.Tests
             // This test should fail. It depends on requirements interpretation and should be used only if multiple 
             // occurances of a word in one sentence are merged into one sentence number.
             Results = Subject.Run("A word word appears twice in this sentence but should be count as one");
-            var arrayOfWords = Results.ToArray();
-            CollectionAssert.AreEqual(new long[] { 0 }, arrayOfWords.Last().SentenceNumbers.ToArray());
+            CollectionAssert.AreEqual(new long[] { 0 }, Results.Last().SentenceNumbers.ToArray());
+        }
+
+        [TestMethod]
+        public void TestShorteningsAsSingleWords()
+        {
+            Results = Subject.Run("Test that shortenings i.e. are single words. They should not break sentences");
+            var arrayOfWords = Results.ToList();
+            var ieStats = arrayOfWords.SingleOrDefault(x => x.Word == "i.e.");
+            Assert.IsNotNull(ieStats);
+            Assert.AreEqual(0, arrayOfWords.Single(x => x.Word == "words").SentenceNumbers[0]);
         }
 
         [TestMethod]

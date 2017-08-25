@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using Concordance.Core.Entities;
 using Concordance.Core.Interfaces;
 
@@ -8,7 +10,7 @@ namespace Concordance.Core
 {
     public class WordsCalculator : IWordsCalculator
     {
-        private IConfigProvider _configProvider;
+        private readonly IConfigProvider _configProvider;
 
         public WordsCalculator(IConfigProvider configProvider)
         {
@@ -22,9 +24,10 @@ namespace Concordance.Core
             
             var dict = new Dictionary<string, WordStats>();
 
-            var sentences = input.Split(_configProvider.SentenceDelimiters.ToCharArray());
+            //var sentences = input.Split(_configProvider.SentenceDelimiters, StringSplitOptions.None);
+            var sentences = SplitBySentences(input).ToList();
 
-            for (var sentenceIndex = 0; sentenceIndex < sentences.Length; sentenceIndex++)
+            for (var sentenceIndex = 0; sentenceIndex < sentences.Count; sentenceIndex++)
             {
                 var words = sentences[sentenceIndex].Split(_configProvider.WordDelimiters.ToCharArray(),
                     StringSplitOptions.RemoveEmptyEntries);
@@ -51,6 +54,17 @@ namespace Concordance.Core
             // 
             //if (!stats.SentenceNumbers.Contains(sentenceIndex)) 
             stats.SentenceNumbers.Add(sentenceIndex);
+        }
+
+        private IEnumerable<string> SplitBySentences(string input)
+        { 
+            var regex = new Regex(@"(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\!)\s");
+            var sentences = regex.Split(input);
+            foreach (var sentence in sentences)
+            {
+                yield return sentence.TrimEnd('.', '?', '!');
+            }
+
         }
     }
 }
