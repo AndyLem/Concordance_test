@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Concordance.Core;
-using Concordance.Core.Entities;
 using Concordance.Core.Interfaces;
+using Concordance.Core.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -22,6 +22,7 @@ namespace Concordance.Tests
             ConfigProviderMock = new Mock<IConfigProvider>();
             ConfigProviderMock.Setup(x => x.WordDelimiters).Returns("\r\n, ");
             ConfigProviderMock.Setup(x => x.SortAsc).Returns(true);
+            ConfigProviderMock.Setup(x => x.SentenceNumberStartsFrom).Returns(0);
 
             Subject = new WordsCalculator(ConfigProviderMock.Object);
             Results = null;
@@ -32,6 +33,7 @@ namespace Concordance.Tests
         {
             Results = Subject.Run(string.Empty);
             Assert.IsNotNull(Results);
+            Assert.AreEqual(false, Results.Any());
         }
 
         [TestMethod]
@@ -54,10 +56,11 @@ namespace Concordance.Tests
             Results = Subject.Run("Hello, this is my first test");
             var arrayOfWords = Results.ToArray();
             Assert.AreEqual(6, arrayOfWords.Length);
-            Assert.AreEqual("first", arrayOfWords[0].Word);
-            Assert.AreEqual(1, arrayOfWords[0].Occurences);
-            Assert.AreEqual(1, arrayOfWords[0].SentenceNumbers.Count);
-            Assert.AreEqual(0, arrayOfWords[0].SentenceNumbers[0]);
+            var firstWordStars = arrayOfWords.First(x => x.Word == "first");
+            Assert.IsNotNull(firstWordStars);
+            Assert.AreEqual(1, firstWordStars.Occurences);
+            Assert.AreEqual(1, firstWordStars.SentenceNumbers.Count);
+            Assert.AreEqual(0, firstWordStars.SentenceNumbers[0]);
         }
 
         [TestMethod]
@@ -66,9 +69,10 @@ namespace Concordance.Tests
             Results = Subject.Run("Hello, this is my second test. This test contains two sentences");
             var arrayOfWords = Results.ToArray();
             Assert.AreEqual(9, arrayOfWords.Length);
-            Assert.AreEqual("test", arrayOfWords[6].Word);
-            Assert.AreEqual(2, arrayOfWords[6].Occurences);
-            CollectionAssert.AreEqual(new long[] {0, 1}, arrayOfWords[6].SentenceNumbers.ToArray());
+            var testWordStats = arrayOfWords.First(x => x.Word == "test");
+            Assert.IsNotNull(testWordStats);
+            Assert.AreEqual(2, testWordStats.Occurences);
+            CollectionAssert.AreEqual(new long[] {0, 1}, testWordStats.SentenceNumbers.ToArray());
         }
 
         [TestMethod]
@@ -94,7 +98,7 @@ namespace Concordance.Tests
         public void TestMultipleOccurencesInOneSentence()
         {
             Results = Subject.Run("A word word appears twice in this sentence");
-            CollectionAssert.AreEqual(new long[]{0, 0}, Results.Last().SentenceNumbers.ToArray());
+            CollectionAssert.AreEqual(new long[]{0, 0}, Results.First(x => x.Word == "word").SentenceNumbers.ToArray());
         }
 
         [TestMethod]
@@ -103,7 +107,7 @@ namespace Concordance.Tests
             // This test should fail. It depends on requirements interpretation and should be used only if multiple 
             // occurances of a word in one sentence are merged into one sentence number.
             Results = Subject.Run("A word word appears twice in this sentence but should be count as one");
-            CollectionAssert.AreEqual(new long[] { 0 }, Results.Last().SentenceNumbers.ToArray());
+            CollectionAssert.AreEqual(new long[] { 0 }, Results.First(x => x.Word == "word").SentenceNumbers.ToArray());
         }
 
         [TestMethod]
@@ -113,6 +117,8 @@ namespace Concordance.Tests
             var arrayOfWords = Results.ToList();
             var ieStats = arrayOfWords.SingleOrDefault(x => x.Word == "i.e.");
             Assert.IsNotNull(ieStats);
+
+            // checking that the word 'word is in the first sentence
             Assert.AreEqual(0, arrayOfWords.Single(x => x.Word == "words").SentenceNumbers[0]);
         }
 

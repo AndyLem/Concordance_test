@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.6.1\lib\net45\Autofac.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -43,12 +46,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Containers\ContainerBuilder.cs" />
+    <Compile Include="Entities\InputProviderSource.cs" />
+    <Compile Include="Builders\FormattedOutputBuilder.cs" />
+    <Compile Include="Providers\DemoInputProvider.cs" />
+    <Compile Include="Interfaces\IInputProviderFactory.cs" />
+    <Compile Include="Providers\InputProviderFactory.cs" />
+    <Compile Include="Providers\TextReaderInputProvider.cs" />
+    <Compile Include="Interfaces\IInputProvider.cs" />
+    <Compile Include="Interfaces\IOutputBuilder.cs" />
+    <Compile Include="Builders\SimpleOutputBuilder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ConfigProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Concordance.Core\Concordance.Core.csproj">

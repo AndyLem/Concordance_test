@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entities\CalculatorResults.cs" />
+    <Compile Include="Model\WordStats.cs" />
     <Compile Include="Interfaces\IConfigProvider.cs" />
     <Compile Include="Interfaces\IWordsCalculator.cs" />
     <Compile Include="WordsCalculator.cs" />

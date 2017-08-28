@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Concordance.Core.Entities
+namespace Concordance.Core.Model
 {
-    public class CalculatorResults
-    {
-        public IEnumerable<WordStats> SortedWords;
-    }
-
     public class WordStats
     {
         public string Word;

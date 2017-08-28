@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using Concordance.Core.Entities;
 using Concordance.Core.Interfaces;
+using Concordance.Core.Model;
 
 namespace Concordance.Core
 {
@@ -24,7 +23,6 @@ namespace Concordance.Core
             
             var dict = new Dictionary<string, WordStats>();
 
-            //var sentences = input.Split(_configProvider.SentenceDelimiters, StringSplitOptions.None);
             var sentences = SplitBySentences(input).ToList();
 
             for (var sentenceIndex = 0; sentenceIndex < sentences.Count; sentenceIndex++)
@@ -50,10 +48,15 @@ namespace Concordance.Core
         private void UpdateStats(WordStats stats, int sentenceIndex)
         {
             stats.Occurences++;
-            // uncomment following line to count multiple appearances in a single sentence as one 
-            // 
-            //if (!stats.SentenceNumbers.Contains(sentenceIndex)) 
-            stats.SentenceNumbers.Add(sentenceIndex);
+            var indexToStore = sentenceIndex + _configProvider.SentenceNumberStartsFrom;
+
+            // uncomment next line of code to count multiple appearances in a single sentence as one 
+            // this will affect following Unit Tests:
+            // * TestMultipleOccurencesInOneSentence (should pass if the line is commented, or fail otherwise)
+            // * TestMultipleOccurencesInOneSentence_MergedIntoOne (should pass if the line is UNcommented, or fail otherwise)
+
+            //if (!stats.SentenceNumbers.Contains(indexToStore)) 
+            stats.SentenceNumbers.Add(indexToStore);
         }
 
         private IEnumerable<string> SplitBySentences(string input)
